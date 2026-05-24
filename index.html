@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cylight - Admin Panel</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background: linear-gradient(135deg, #12131e, #0a0b12); color: #ffffff; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .admin-box { background: rgba(255, 255, 255, 0.03); padding: 40px; border-radius: 16px; border: 1px solid rgba(124, 77, 255, 0.2); width: 100%; max-width: 400px; text-align: center; backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { color: #00ffcc; text-transform: uppercase; font-size: 22px; margin-bottom: 10px; letter-spacing: 1px; }
+        p { color: #888; font-size: 13px; margin-bottom: 25px; }
+        input[type="text"] { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; background: #161824; color: #fff; font-size: 16px; text-align: center; outline: none; }
+        input[type="text"]:focus { border-color: #7c4dff; box-shadow: 0 0 10px rgba(124, 77, 255, 0.3); }
+        button { width: 100%; padding: 12px; background: #7c4dff; border: none; border-radius: 8px; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #651fff; box-shadow: 0 0 15px rgba(124, 77, 255, 0.5); }
+    </style>
+</head>
+<body>
+
+<div class="admin-box">
+    <h2>Cylight Admin Panel</h2>
+    <p>Nhập mã Token quản trị để khởi tạo Server Key từ xa</p>
+    <input type="text" id="adminToken" placeholder="Nhập Token đại lý của bạn...">
+    <button onclick="generateServerKey()">TẠO SERVER KEY NGAY</button>
+</div>
+
+<script>
+    function generateServerKey() {
+        const token = document.getElementById('adminToken').value.trim();
+        if(token.length < 4) {
+            Swal.fire('Thất bại', 'Vui lòng nhập mã Token hợp lệ!', 'error');
+            return;
+        }
+
+        // Thuật toán tạo chuỗi ngẫu nhiên kết thúc bằng đuôi "ADMIN_VANQUY" chuẩn dữ liệu của bạn
+        const chars = 'abcdef0123456789';
+        let randomString = '';
+        for (let i = 0; i < 32; i++) {
+            randomString += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        const generatedKey = randomString + 'ADMIN_VANQUY';
+
+        // Lưu mã Key vừa tạo vào bộ nhớ cơ sở dữ liệu chung (localStorage)
+        let savedKeys = JSON.parse(localStorage.getItem('server_keys_db')) || [];
+        savedKeys.push(generatedKey);
+        localStorage.setItem('server_keys_db', JSON.stringify(savedKeys));
+
+        // Hiển thị Popup kết quả có ô copy tiện lợi giống như ảnh mẫu
+        Swal.fire({
+            title: 'Thông báo',
+            html: `<div style="font-size: 14px; color: #333; margin-bottom: 10px;">Khởi tạo thành công! Hãy copy Key này sử dụng cho App:</div>
+                   <input type="text" class="swal2-input" value="${generatedKey}" readonly style="text-align:center; color:#7c4dff; font-weight:bold; font-size:14px; width:90%;" onclick="this.select();">`,
+            icon: 'success',
+            confirmButtonText: 'Đóng',
+            confirmButtonColor: '#7c4dff'
+        });
+    }
+</script>
+</body>
+</html>
